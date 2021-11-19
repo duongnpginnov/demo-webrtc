@@ -1,25 +1,240 @@
-@font-face {
-  font-family: Gilroy;
-  src: url(./assests/gilroy.otf);
-}
-@font-face {
-  font-family: gilroy-light;
-  src: url(./assests/Gilroy-Light.otf);
-}
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap");
+@import url("https://use.fontawesome.com/releases/v5.14.0/css/all.css");
+@import "antd/dist/antd.css";
 
 body {
-  margin: 0;
-  padding: 0;
-  font-family: Gilroy !important;
-  background-color: #00b4dbac !important;
-  background: linear-gradient(
-    to right,
-    hsl(200, 100%, 40%),
-    hsl(191, 100%, 43%)
-  );
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+#root {
+  height: inherit;
+}
+
+.App {
+  text-align: center;
+  /* background-image: url("./image/loginCover.svg"); */
+}
+.App .join-btn {
+  display: block;
+  margin: 20px auto;
+}
+
+.MuiButton-contained.Mui-disabled {
+  color: rgb(255 255 255) !important;
+  box-shadow: none;
+  background-color: rgb(31 9 9 / 51%) !important;
+}
+
+.grid-sharing {
+  height: 95%;
+  display: flex;
+  flex-direction: row-reverse;
+}
+.grid-normal {
+  height: 95%;
+}
+
+.grid-video-sharing {
+  width: 270px !important;
+  height: 100%;
+  display: block !important;
+  overflow: overlay;
+}
+
+.grid-video-normal {
+  height: 100%;
+  width: 100%;
+}
+
+.video-sharing .agora_video_player {
+  object-fit: contain !important;
+}
+
+.login-form {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+}
+.ant-layout.ant-layout-has-sider {
+  height: 100%;
+}
+
+.main-page .ant-layout-sider {
+  background: cadetblue !important;
+}
+.main-page .ant-layout-sider .ant-avatar-image {
+  background: transparent;
+  width: 100px;
+  height: 100px;
+  border: 1px solid red !important;
+  margin-top: 50px;
+  margin-bottom: 10px;
+}
+
+.main-page .logout-btn {
+  position: absolute;
+  bottom: 50px;
+  left: 34%;
+  cursor: pointer;
+}
+
+.main-page .menu-item {
+  background-color: #773c3c;
+  color: white;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid goldenrod;
+}
+
+.channel-item {
+  padding: 10px 40px;
+}
+.channel-item p {
+  margin: auto;
+  text-align: left;
+  padding-left: 10px;
+}
+.channel-item .ant-image,
+.channel-item .ant-image-img {
+  height: 110px !important;
+}
+
+.add-class {
+  margin-top: 30px;
+  text-align: left;
+  margin-left: 35px;
+}
+
+.ant-btn {
+  border-radius: 10px;
+}
+
+.channel-item .ant-col-4 {
+  max-width: 110px !important;
+}
+
+.custom-video {
+  display: flex;
+  height: 100%;
+}
+
+.custom-video-cam {
+  height: 100%;
+  width: calc(100% - 220px);
+  overflow: auto;
+}
+.custom-video-list {
+  width: 220px;
+  display: block;
+  overflow: auto;
+  padding: 10px;
+}
+
+.custom-video-list .ant-list {
+  height: 100%;
+  overflow: auto;
+  background: #4061e0;
+}
+
+.custom-video-list .ant-list .ant-list-item {
+  color: white;
+  font-weight: bolder;
+}
+
+.channel-name {
+  margin-bottom: -5px;
+  color: white;
+  font-size: 18px;
+  height: 25px;
+}
+
+.video-item button {
+  height: 35px;
+  width: 40px;
+  min-width: 40px;
+}
+
+.channel-option {
+  display: flex;
+  height: 50px;
+}
+
+.channel-option .ant-btn {
+  width: 200px;
+  margin: 0 10px;
+  background: #727765;
+  border-radius: 10px;
+  height: 40px;
+  font-size: 16px;
+  font-weight: bolder;
+  cursor: pointer;
+}
+
+.channel-option .ant-btn.class-end {
+  width: 200px;
+  margin-left: auto;
+}
+
+.custom-video-list .ant-list-split .ant-list-item:last-child {
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+
+span.anticon.anticon-close.ant-modal-close-icon {
+  display: none;
+}
+
+.result-admin {
+  background: cadetblue;
+  height: 100%;
+}
+
+.result-admin .result-admin-chart {
+  height: 90%;
+  padding-top: 10%;
+}
+
+.result-admin .ant-btn {
+  border-radius: 10px;
+  background-color: #096dd9;
+  border: none;
+  color: white;
+  font-weight: bold;
+  width: 100px;
+}
+
+.result-admin .result-admin-chart .ant-image {
+  display: flex;
+  height: 50%;
+}
+
+.result-admin .result-admin-chart .result-admin-chart-title {
+  font-size: 20px;
+  color: white;
+}
+
+.control-logo {
+  position: absolute;
+  right: 10px;
+  top: 0;
+}
+
+.control-logo .ant-image-img {
+  height: 25px;
+}
+
+.fas {
+  color: white;
 }
