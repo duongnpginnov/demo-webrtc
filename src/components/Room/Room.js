@@ -184,8 +184,22 @@ const Room = (props) => {
       stream,
       config: {
         iceServers: [
-          { urls: "stun:stun.l.google.com:19302" },
-          { urls: "stun:global.stun.twilio.com:3478?transport=udp" },
+          {
+            urls: ["stun:ss-turn1.xirsys.com"],
+          },
+          {
+            username:
+              "_FWp7aDg6oloWzysarzlvzLeO15mf2RmJ8pEdsZl57HOqX7OgiubZWHTfCoz6l6iAAAAAGGbHjxiaWJv",
+            credential: "b8bc9cee-4b4d-11ec-8141-0242ac140004",
+            urls: [
+              "turn:ss-turn1.xirsys.com:80?transport=udp",
+              "turn:ss-turn1.xirsys.com:3478?transport=udp",
+              "turn:ss-turn1.xirsys.com:80?transport=tcp",
+              "turn:ss-turn1.xirsys.com:3478?transport=tcp",
+              "turns:ss-turn1.xirsys.com:443?transport=tcp",
+              "turns:ss-turn1.xirsys.com:5349?transport=tcp",
+            ],
+          },
         ],
       },
     });
