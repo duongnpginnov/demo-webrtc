@@ -44,8 +44,8 @@ function App() {
         <div className="login-form">
           <Form
             name="basic"
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
+            labelCol={{ span: 24 }}
+            wrapperCol={{ span: 24 }}
             onFinish={onFinish}
             autoComplete="off"
           >
@@ -69,7 +69,7 @@ function App() {
               <Input />
             </Form.Item>
 
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+            <Form.Item wrapperCol={{ span: 24 }}>
               <Button type="primary" htmlType="submit">
                 Join
               </Button>
