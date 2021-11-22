@@ -142,13 +142,14 @@ const Room = (props) => {
       stream,
       config: {
         iceServers: [
-          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:stun.l.google.com:19302?transport=tcp" },
           { urls: "stun:global.stun.twilio.com:3478?transport=udp" },
         ],
       },
     });
 
     peer.on("signal", (signal) => {
+      console.log("createPeer signal ", signal);
       socket.emit("call-user", {
         userToCall: userId,
         from: caller,
@@ -176,6 +177,7 @@ const Room = (props) => {
     });
 
     peer.on("signal", (signal) => {
+      console.log("addPeer signal ", signal);
       socket.emit("accepted-call", { signal, to: callerId });
     });
 
