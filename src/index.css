@@ -64,7 +64,7 @@ code {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 500px;
+  /* width: 500px; */
 }
 .ant-layout.ant-layout-has-sider {
   height: 100%;
