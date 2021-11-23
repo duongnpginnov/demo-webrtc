@@ -4,22 +4,20 @@ import { Modal, Radio, Input, Space, Col, Row, Button, Image } from "antd";
 import QuestionResult from "./image/question-result.PNG";
 import AttendanceResult from "./image/attended-result.PNG";
 import StudentResult from "./image/student-result.png";
+import socket from "./socket";
 
 export default function ResultAdmin(props) {
-  const { setInCall, setStart, setShowResultAdmin, uuid } = props;
-
-  useEffect(() => {}, []);
+  const { currentUser, roomId } = props;
 
   const handleClose = () => {
-    setStart(false);
-    setInCall(false);
-    setShowResultAdmin(false);
+    socket.emit("call-user-leave", { roomId, leaver: currentUser });
+    window.location.href = "/";
   };
 
   return (
     <div className="result-admin">
       <Row justify="space-around" className="result-admin-chart">
-        {uuid == "host" ? (
+        {currentUser == "host" ? (
           <>
             <Col span={10}>
               <Image src={AttendanceResult} preview={false} />

@@ -232,9 +232,74 @@ span.anticon.anticon-close.ant-modal-close-icon {
 }
 
 .control-logo .ant-image-img {
-  height: 25px;
+  height: 31px;
 }
 
 .fas {
   color: white;
+}
+
+.video-container {
+  display: flex;
+  width: 100%;
+  max-height: 100vh;
+  flex-direction: row;
+}
+.video-main {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+.video-option {
+  height: 50px;
+  width: 100%;
+}
+
+.video-list {
+  width: 100%;
+  height: calc(100vh - 50px);
+  background-color: cadetblue;
+  padding-top: 40px;
+  overflow: auto;
+}
+.video-channel-name {
+  position: absolute;
+  left: 50%;
+  font-size: 24px;
+  color: white;
+  font-weight: 400;
+}
+
+.video-user-name {
+  position: absolute;
+  font-size: 30px;
+  z-index: 1;
+  top: 0;
+  color: white;
+}
+
+.video-user {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.video-user video {
+  width: 100%;
+  padding: 10px;
+  max-height: 350px;
+  object-fit: inherit;
+}
+
+.video-user .fas {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+}
+
+.MuiGrid-spacing-xs-2 {
+  width: 100% !important;
+  margin: 0 !important;
 }

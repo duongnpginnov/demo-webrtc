@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import Peer from "simple-peer";
-import styled from "styled-components";
 import socket from "../../socket";
 import VideoCard from "../Video/VideoCard";
-import BottomBar from "../BottomBar/BottomBar";
-import Chat from "../Chat/Chat";
+import Controls from "../Control/Controls";
+import { Row, Col } from "antd";
+import ResultAdmin from "../../ResultAdmin";
 
 const Room = (props) => {
   const { currentUser, channelName, setIncall } = props;
@@ -13,8 +13,8 @@ const Room = (props) => {
     localUser: { video: true, audio: true },
   });
   const [videoDevices, setVideoDevices] = useState([]);
-  const [displayChat, setDisplayChat] = useState(false);
   const [screenShare, setScreenShare] = useState(false);
+  const [showResultAdmin, setShowResultAdmin] = useState(false);
   const peersRef = useRef([]);
   const userVideoRef = useRef();
   const screenTrackRef = useRef();
@@ -27,9 +27,6 @@ const Room = (props) => {
       const filtered = devices.filter((device) => device.kind === "videoinput");
       setVideoDevices(filtered);
     });
-
-    // Set Back Button Event
-    window.addEventListener("popstate", goToBack);
 
     // Connect Camera & Mic
     navigator.mediaDevices
@@ -224,59 +221,52 @@ const Room = (props) => {
 
   function createUserVideo(peer, index, arr) {
     return (
-      <VideoBox
-        className={`width-peer${peers.length > 8 ? "" : peers.length}`}
-        key={index}
-      >
-        {writeUserName(peer.userName)}
-        <div>
-          {userVideoAudio[peer.userName]?.audio ? (
-            <FaIcon className="fas fa-microphone"></FaIcon>
-          ) : (
-            <FaIcon className="fas fa-microphone-slash"></FaIcon>
-          )}
+      <Col span={8} key={index}>
+        <div className="video-user">
+          {writeUserName(peer.userName)}
+          <div>
+            {userVideoAudio[peer.userName]?.audio ? (
+              <div className="fas fa-microphone"></div>
+            ) : (
+              <div className="fas fa-microphone-slash"></div>
+            )}
+          </div>
+          <div style={{ position: "absolute", top: 0, right: "35px" }}>
+            {userVideoAudio[peer.userName]?.video ? (
+              <div className="fas fa-video"></div>
+            ) : (
+              <div className="fas fa-video-slash"></div>
+            )}
+          </div>
+          <VideoCard key={index} peer={peer} number={arr.length} />
         </div>
-        <div style={{ position: "absolute", top: 0, right: "35px" }}>
-          {userVideoAudio[peer.userName]?.video ? (
-            <FaIcon className="fas fa-video"></FaIcon>
-          ) : (
-            <FaIcon className="fas fa-video-slash"></FaIcon>
-          )}
-        </div>
-        <VideoCard key={index} peer={peer} number={arr.length} />
-      </VideoBox>
+      </Col>
     );
   }
 
   function writeUserName(userName, index) {
     if (userVideoAudio.hasOwnProperty(userName)) {
       // if (!userVideoAudio[userName].video) {
-      return <UserName key={userName}>{userName}</UserName>;
+      return (
+        <div className="video-user-name" key={userName}>
+          {userName}
+        </div>
+      );
       // }
     }
   }
 
-  // Open Chat
-  const clickChat = (e) => {
-    e.stopPropagation();
-    setDisplayChat(!displayChat);
-  };
-
   // BackButton
-  const goToBack = (e) => {
-    e.preventDefault();
-    socket.emit("call-user-leave", { roomId, leaver: currentUser });
-    window.location.href = "/";
+  const goToBack = () => {
+    setShowResultAdmin(true);
   };
 
-  const toggleCameraAudio = (e) => {
-    const target = e.target.getAttribute("data-switch");
-
+  const toggleCameraAudio = (type) => {
     setUserVideoAudio((preList) => {
       let videoSwitch = preList["localUser"].video;
       let audioSwitch = preList["localUser"].audio;
 
-      if (target === "video") {
+      if (type === "video") {
         const userVideoTrack =
           userVideoRef.current.srcObject.getVideoTracks()[0];
         videoSwitch = !videoSwitch;
@@ -299,7 +289,7 @@ const Room = (props) => {
       };
     });
 
-    socket.emit("call-toggle-camera-audio", { roomId, switchTarget: target });
+    socket.emit("call-toggle-camera-audio", { roomId, switchTarget: type });
   };
 
   const clickScreenSharing = () => {
@@ -345,93 +335,50 @@ const Room = (props) => {
   };
 
   console.log("peers ", peers);
+  console.log("userVideoAudio ", userVideoAudio["localUser"]);
   return (
-    <RoomContainer>
-      <VideoAndBarContainer>
-        <VideoContainer>
-          {/* Current User Video */}
-          <VideoBox
-            className={`width-peer${peers.length > 8 ? "" : peers.length}`}
-          >
-            <MyVideo ref={userVideoRef} muted autoPlay playInline></MyVideo>
-          </VideoBox>
-          {/* Joined User Vidoe */}
-          {peers &&
-            peers.map((peer, index, arr) => createUserVideo(peer, index, arr))}
-        </VideoContainer>
-        <BottomBar
-          clickScreenSharing={clickScreenSharing}
-          clickChat={clickChat}
-          goToBack={goToBack}
-          toggleCameraAudio={toggleCameraAudio}
-          userVideoAudio={userVideoAudio["localUser"]}
-          screenShare={screenShare}
-        />
-      </VideoAndBarContainer>
-      {/* <Chat display={displayChat} roomId={roomId} /> */}
-    </RoomContainer>
+    <>
+      {showResultAdmin ? (
+        <ResultAdmin currentUser={currentUser} roomId={roomId} />
+      ) : (
+        <div className="video-container">
+          <div className="video-main">
+            <div className="video-option">
+              <Controls
+                clickScreenSharing={clickScreenSharing}
+                goToBack={goToBack}
+                toggleCameraAudio={toggleCameraAudio}
+                userVideoAudio={userVideoAudio["localUser"]}
+                screenShare={screenShare}
+                currentUser={currentUser}
+              />
+            </div>
+            <div className="video-channel-name">{channelName}</div>
+            <div className="video-list">
+              <Row>
+                <Col span={8}>
+                  {/* Current User Video */}
+                  <div className="video-user">
+                    <video
+                      ref={userVideoRef}
+                      muted
+                      autoPlay
+                      playsInline
+                    ></video>
+                  </div>
+                </Col>
+                {/* Joined User Vidoe */}
+                {peers &&
+                  peers.map((peer, index, arr) =>
+                    createUserVideo(peer, index, arr)
+                  )}
+              </Row>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
-
-const RoomContainer = styled.div`
-  display: flex;
-  width: 100%;
-  max-height: 100vh;
-  flex-direction: row;
-`;
-
-const VideoContainer = styled.div`
-  max-width: 100%;
-  height: 92%;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  align-items: center;
-  padding: 15px;
-  box-sizing: border-box;
-  gap: 10px;
-`;
-
-const VideoAndBarContainer = styled.div`
-  position: relative;
-  width: 100%;
-  height: 100vh;
-`;
-
-const MyVideo = styled.video``;
-
-const VideoBox = styled.div`
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  > video {
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  :hover {
-    > i {
-      display: block;
-    }
-  }
-`;
-
-const UserName = styled.div`
-  position: absolute;
-  font-size: 30px;
-  z-index: 1;
-  top: 0;
-  color: white;
-`;
-
-const FaIcon = styled.i`
-  position: absolute;
-  right: 15px;
-  top: 15px;
-`;
 
 export default Room;
