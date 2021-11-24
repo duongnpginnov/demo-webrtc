@@ -18,6 +18,7 @@ export default function Controls(props) {
     clickScreenSharing,
     screenShare,
     currentUser,
+    changeResolution,
   } = props;
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -36,6 +37,11 @@ export default function Controls(props) {
   const turnOnMic = async () => {};
 
   const turnOffMic = async () => {};
+
+  const handleChangeResolution = () => {
+    let type = Math.floor(Math.random() * 3) + 1;
+    changeResolution(type);
+  };
 
   return (
     <>
@@ -81,8 +87,12 @@ export default function Controls(props) {
               </Button>
             </Grid>
             <Grid item>
-              <Button variant="contained" color="primary" onClick={showModal}>
-                Survey
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleChangeResolution}
+              >
+                change Resolution
               </Button>
             </Grid>
           </>

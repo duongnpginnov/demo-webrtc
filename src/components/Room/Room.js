@@ -39,33 +39,43 @@ const Room = (props) => {
         socket.on("list-user-join", (users) => {
           console.log("list users ", users);
           // all users
-          const peers = [];
+          // const peers = [];
           users.forEach(({ userId, info }) => {
             let { userName, video, audio } = info;
 
             if (userName !== currentUser) {
-              const peer = createPeer(userId, socket.id, stream);
+              let checkPeerExist = false;
+              peersRef.current.length &&
+                peersRef.current.map((peer) => {
+                  if (peer.peerID === userId) {
+                    checkPeerExist = true;
+                  }
+                });
+              if (!checkPeerExist) {
+                const peer = createPeer(userId, socket.id, stream);
 
-              peer.userName = userName;
-              peer.peerID = userId;
+                peer.userName = userName;
+                peer.peerID = userId;
 
-              peersRef.current.push({
-                peerID: userId,
-                peer,
-                userName,
-              });
-              peers.push(peer);
+                peersRef.current.push({
+                  peerID: userId,
+                  peer,
+                  userName,
+                });
+                // peers.push(peer);
+                setPeers((prvPeers) => {
+                  return [...prvPeers, peer];
+                });
 
-              setUserVideoAudio((preList) => {
-                return {
-                  ...preList,
-                  [peer.userName]: { video, audio },
-                };
-              });
+                setUserVideoAudio((preList) => {
+                  return {
+                    ...preList,
+                    [peer.userName]: { video, audio },
+                  };
+                });
+              }
             }
           });
-
-          setPeers(peers);
         });
 
         socket.on("receive-call", ({ signal, from, info }) => {
@@ -76,14 +86,15 @@ const Room = (props) => {
             const peer = addPeer(signal, from, stream);
 
             peer.userName = userName;
+            peer.peerID = from;
 
             peersRef.current.push({
               peerID: from,
               peer,
               userName: userName,
             });
-            setPeers((users) => {
-              return [...users, peer];
+            setPeers((prvPeers) => {
+              return [...prvPeers, peer];
             });
             setUserVideoAudio((preList) => {
               return {
@@ -102,9 +113,9 @@ const Room = (props) => {
         socket.on("receive-user-leave", ({ userId, userName }) => {
           const peerIdx = findPeer(userId);
           peerIdx.peer.destroy();
-          setPeers((users) => {
-            users = users.filter((user) => user.peerID !== peerIdx.peer.peerID);
-            return [...users];
+          setPeers((prvPeers) => {
+            let tmpPeers = prvPeers.filter((peer) => peer.peerID !== userId);
+            return [...tmpPeers];
           });
         });
       });
@@ -172,6 +183,37 @@ const Room = (props) => {
     });
 
     return peer;
+  }
+
+  function changeResolution(type) {
+    console.log("changeResolution type ", type);
+    let constraints =
+      type === 1
+        ? {
+            video: { height: 240, width: 320 },
+            audio: true,
+          }
+        : type === 2
+        ? {
+            video: { height: 480, width: 640 },
+            audio: true,
+          }
+        : {
+            video: { height: 720, width: 1080 },
+            audio: true,
+          };
+
+    userVideoRef.current.srcObject.getTracks().forEach((track) => {
+      track.stop();
+    });
+    navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+      let infofo = stream.getVideoTracks()[0].getSettings();
+      console.log("infofo changeResolution ", infofo);
+      userVideoRef.current.srcObject = stream;
+      userStream.current = stream;
+
+      //update stream of peer
+    });
   }
 
   function addPeer(incomingSignal, callerId, stream) {
@@ -258,7 +300,9 @@ const Room = (props) => {
 
   // BackButton
   const goToBack = () => {
-    setShowResultAdmin(true);
+    // setShowResultAdmin(true);
+    socket.emit("call-user-leave", { roomId, leaver: currentUser });
+    window.location.href = "/";
   };
 
   const toggleCameraAudio = (type) => {
@@ -335,7 +379,6 @@ const Room = (props) => {
   };
 
   console.log("peers ", peers);
-  console.log("userVideoAudio ", userVideoAudio["localUser"]);
   return (
     <>
       {showResultAdmin ? (
@@ -351,6 +394,7 @@ const Room = (props) => {
                 userVideoAudio={userVideoAudio["localUser"]}
                 screenShare={screenShare}
                 currentUser={currentUser}
+                changeResolution={changeResolution}
               />
             </div>
             <div className="video-channel-name">{channelName}</div>
