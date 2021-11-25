@@ -29,96 +29,98 @@ const Room = (props) => {
     });
 
     // Connect Camera & Mic
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        userVideoRef.current.srcObject = stream;
-        userStream.current = stream;
+    let constrains = {
+      video: { height: 720, width: 1080 },
+      audio: true,
+    };
+    navigator.mediaDevices.getUserMedia(constrains).then((stream) => {
+      userVideoRef.current.srcObject = stream;
+      userStream.current = stream;
 
-        socket.emit("join-room", { roomId, userName: currentUser });
-        socket.on("list-user-join", (users) => {
-          console.log("list users ", users);
-          // all users
-          // const peers = [];
-          users.forEach(({ userId, info }) => {
-            let { userName, video, audio } = info;
-
-            if (userName !== currentUser) {
-              let checkPeerExist = false;
-              peersRef.current.length &&
-                peersRef.current.map((peer) => {
-                  if (peer.peerID === userId) {
-                    checkPeerExist = true;
-                  }
-                });
-              if (!checkPeerExist) {
-                const peer = createPeer(userId, socket.id, stream);
-
-                peer.userName = userName;
-                peer.peerID = userId;
-
-                peersRef.current.push({
-                  peerID: userId,
-                  peer,
-                  userName,
-                });
-                // peers.push(peer);
-                setPeers((prvPeers) => {
-                  return [...prvPeers, peer];
-                });
-
-                setUserVideoAudio((preList) => {
-                  return {
-                    ...preList,
-                    [peer.userName]: { video, audio },
-                  };
-                });
-              }
-            }
-          });
-        });
-
-        socket.on("receive-call", ({ signal, from, info }) => {
+      socket.emit("join-room", { roomId, userName: currentUser });
+      socket.on("list-user-join", (users) => {
+        console.log("list users ", users);
+        // all users
+        // const peers = [];
+        users.forEach(({ userId, info }) => {
           let { userName, video, audio } = info;
-          const peerIdx = findPeer(from);
 
-          if (!peerIdx) {
-            const peer = addPeer(signal, from, stream);
+          if (userName !== currentUser) {
+            let checkPeerExist = false;
+            peersRef.current.length &&
+              peersRef.current.map((peer) => {
+                if (peer.peerID === userId) {
+                  checkPeerExist = true;
+                }
+              });
+            if (!checkPeerExist) {
+              const peer = createPeer(userId, socket.id, stream);
 
-            peer.userName = userName;
-            peer.peerID = from;
+              peer.userName = userName;
+              peer.peerID = userId;
 
-            peersRef.current.push({
-              peerID: from,
-              peer,
-              userName: userName,
-            });
-            setPeers((prvPeers) => {
-              return [...prvPeers, peer];
-            });
-            setUserVideoAudio((preList) => {
-              return {
-                ...preList,
-                [peer.userName]: { video, audio },
-              };
-            });
+              peersRef.current.push({
+                peerID: userId,
+                peer,
+                userName,
+              });
+              // peers.push(peer);
+              setPeers((prvPeers) => {
+                return [...prvPeers, peer];
+              });
+
+              setUserVideoAudio((preList) => {
+                return {
+                  ...preList,
+                  [peer.userName]: { video, audio },
+                };
+              });
+            }
           }
         });
+      });
 
-        socket.on("receive-accepted", ({ signal, answerId }) => {
-          const peerIdx = findPeer(answerId);
-          peerIdx.peer.signal(signal);
-        });
+      socket.on("receive-call", ({ signal, from, info }) => {
+        let { userName, video, audio } = info;
+        const peerIdx = findPeer(from);
 
-        socket.on("receive-user-leave", ({ userId, userName }) => {
-          const peerIdx = findPeer(userId);
-          peerIdx.peer.destroy();
-          setPeers((prvPeers) => {
-            let tmpPeers = prvPeers.filter((peer) => peer.peerID !== userId);
-            return [...tmpPeers];
+        if (!peerIdx) {
+          const peer = addPeer(signal, from, stream);
+
+          peer.userName = userName;
+          peer.peerID = from;
+
+          peersRef.current.push({
+            peerID: from,
+            peer,
+            userName: userName,
           });
+          setPeers((prvPeers) => {
+            return [...prvPeers, peer];
+          });
+          setUserVideoAudio((preList) => {
+            return {
+              ...preList,
+              [peer.userName]: { video, audio },
+            };
+          });
+        }
+      });
+
+      socket.on("receive-accepted", ({ signal, answerId }) => {
+        const peerIdx = findPeer(answerId);
+        peerIdx.peer.signal(signal);
+      });
+
+      socket.on("receive-user-leave", ({ userId, userName }) => {
+        const peerIdx = findPeer(userId);
+        peerIdx.peer.destroy();
+        setPeers((prvPeers) => {
+          let tmpPeers = prvPeers.filter((peer) => peer.peerID !== userId);
+          return [...tmpPeers];
         });
       });
+    });
 
     socket.on("receive-toggle-camera-audio", ({ userId, switchTarget }) => {
       const peerIdx = findPeer(userId);
@@ -150,22 +152,8 @@ const Room = (props) => {
       stream,
       config: {
         iceServers: [
-          {
-            urls: ["stun:ss-turn1.xirsys.com"],
-          },
-          {
-            username:
-              "_FWp7aDg6oloWzysarzlvzLeO15mf2RmJ8pEdsZl57HOqX7OgiubZWHTfCoz6l6iAAAAAGGbHjxiaWJv",
-            credential: "b8bc9cee-4b4d-11ec-8141-0242ac140004",
-            urls: [
-              "turn:ss-turn1.xirsys.com:80?transport=udp",
-              "turn:ss-turn1.xirsys.com:3478?transport=udp",
-              "turn:ss-turn1.xirsys.com:80?transport=tcp",
-              "turn:ss-turn1.xirsys.com:3478?transport=tcp",
-              "turns:ss-turn1.xirsys.com:443?transport=tcp",
-              "turns:ss-turn1.xirsys.com:5349?transport=tcp",
-            ],
-          },
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:global.stun.twilio.com:3478?transport=udp" },
         ],
       },
     });
@@ -187,21 +175,24 @@ const Room = (props) => {
 
   function changeResolution(type) {
     console.log("changeResolution type ", type);
-    let constraints =
-      type === 1
-        ? {
-            video: { height: 240, width: 320 },
-            audio: true,
-          }
-        : type === 2
-        ? {
-            video: { height: 480, width: 640 },
-            audio: true,
-          }
-        : {
-            video: { height: 720, width: 1080 },
-            audio: true,
-          };
+    let constraints = {
+      video: { height: 240, width: 320 },
+      audio: true,
+    };
+    // type === 1
+    //   ? {
+    //       video: { height: 240, width: 320 },
+    //       audio: true,
+    //     }
+    //   : type === 2
+    //   ? {
+    //       video: { height: 480, width: 640 },
+    //       audio: true,
+    //     }
+    //   : {
+    //       video: { height: 720, width: 1080 },
+    //       audio: true,
+    //     };
 
     userVideoRef.current.srcObject.getTracks().forEach((track) => {
       track.stop();
@@ -209,10 +200,22 @@ const Room = (props) => {
     navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
       let infofo = stream.getVideoTracks()[0].getSettings();
       console.log("infofo changeResolution ", infofo);
-      userVideoRef.current.srcObject = stream;
-      userStream.current = stream;
 
       //update stream of peer
+
+      // const screenTrack = stream.getTracks()[0];
+
+      peersRef.current.forEach(({ peer }) => {
+        // replaceTrack (oldTrack, newTrack, oldStream);
+        peer.replaceTrack(
+          peer.streams[0].getVideoTracks()[0],
+          stream.getVideoTracks()[0],
+          userStream.current
+        );
+      });
+
+      userVideoRef.current.srcObject = stream;
+      userStream.current = stream;
     });
   }
 
@@ -223,22 +226,8 @@ const Room = (props) => {
       stream,
       config: {
         iceServers: [
-          {
-            urls: ["stun:ss-turn1.xirsys.com"],
-          },
-          {
-            username:
-              "_FWp7aDg6oloWzysarzlvzLeO15mf2RmJ8pEdsZl57HOqX7OgiubZWHTfCoz6l6iAAAAAGGbHjxiaWJv",
-            credential: "b8bc9cee-4b4d-11ec-8141-0242ac140004",
-            urls: [
-              "turn:ss-turn1.xirsys.com:80?transport=udp",
-              "turn:ss-turn1.xirsys.com:3478?transport=udp",
-              "turn:ss-turn1.xirsys.com:80?transport=tcp",
-              "turn:ss-turn1.xirsys.com:3478?transport=tcp",
-              "turns:ss-turn1.xirsys.com:443?transport=tcp",
-              "turns:ss-turn1.xirsys.com:5349?transport=tcp",
-            ],
-          },
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:global.stun.twilio.com:3478?transport=udp" },
         ],
       },
     });
@@ -263,7 +252,7 @@ const Room = (props) => {
 
   function createUserVideo(peer, index, arr) {
     return (
-      <Col span={8} key={index}>
+      <Col span={24} key={index}>
         <div className="video-user">
           {writeUserName(peer.userName)}
           <div>
@@ -400,7 +389,7 @@ const Room = (props) => {
             <div className="video-channel-name">{channelName}</div>
             <div className="video-list">
               <Row>
-                <Col span={8}>
+                <Col span={24}>
                   {/* Current User Video */}
                   <div className="video-user">
                     <video

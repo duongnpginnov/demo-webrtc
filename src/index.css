@@ -289,7 +289,7 @@ span.anticon.anticon-close.ant-modal-close-icon {
 .video-user video {
   width: 100%;
   padding: 10px;
-  max-height: 350px;
+  max-height: 500px;
   object-fit: inherit;
 }
 
