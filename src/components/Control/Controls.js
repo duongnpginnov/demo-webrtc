@@ -19,6 +19,9 @@ export default function Controls(props) {
     screenShare,
     currentUser,
     changeResolution,
+    startRecord,
+    stopRecord,
+    recording,
   } = props;
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -85,6 +88,25 @@ export default function Controls(props) {
               <Button variant="contained" color="primary" onClick={turnOnMic}>
                 Unmute All
               </Button>
+            </Grid>
+            <Grid item>
+              {recording ? (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={stopRecord}
+                >
+                  Stop Record
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={startRecord}
+                >
+                  Start Record
+                </Button>
+              )}
             </Grid>
             <Grid item>
               <Button

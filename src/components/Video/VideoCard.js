@@ -6,6 +6,7 @@ const VideoCard = (props) => {
 
   useEffect(() => {
     peer.on("stream", (stream) => {
+      props.recordRemote(stream);
       ref.current.srcObject = stream;
     });
     peer.on("track", (track, stream) => {});

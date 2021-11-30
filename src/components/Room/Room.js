@@ -6,6 +6,8 @@ import Controls from "../Control/Controls";
 import { Row, Col } from "antd";
 import ResultAdmin from "../../ResultAdmin";
 
+var recordedChunks = [];
+
 const Room = (props) => {
   const { currentUser, channelName, setIncall } = props;
   const [peers, setPeers] = useState([]);
@@ -15,6 +17,7 @@ const Room = (props) => {
   const [videoDevices, setVideoDevices] = useState([]);
   const [screenShare, setScreenShare] = useState(false);
   const [showResultAdmin, setShowResultAdmin] = useState(false);
+  const [recording, setRecording] = useState(false);
   const peersRef = useRef([]);
   const userVideoRef = useRef();
   const screenTrackRef = useRef();
@@ -36,6 +39,7 @@ const Room = (props) => {
     navigator.mediaDevices.getUserMedia(constrains).then((stream) => {
       userVideoRef.current.srcObject = stream;
       userStream.current = stream;
+      window.stream = stream;
 
       socket.emit("join-room", { roomId, userName: currentUser });
       socket.on("list-user-join", (users) => {
@@ -219,6 +223,72 @@ const Room = (props) => {
     });
   }
 
+  function recordRemote(remoteStream) {
+    // if (window.mediaRecorder) {
+    console.log("stop old ");
+    // window.mediaRecorder.stop();
+    var options = { mimeType: "video/webm;codecs=vp9,opus" };
+    console.log("recordRemote remoteStream", remoteStream);
+    window.mediaRemoteRecorder = "";
+    try {
+      window.mediaRemoteRecorder = new MediaRecorder(remoteStream, options);
+    } catch (error) {
+      console.log("startRecord error ", error);
+    }
+    window.mediaRemoteRecorder.ondataavailable = handleDataAvailable;
+    window.mediaRemoteRecorder.start(1500);
+    setRecording(true);
+    // }
+  }
+
+  function handleDataAvailable(event) {
+    console.log("data-available ", event);
+    if (event && event.data.size > 0) {
+      recordedChunks.push(event.data);
+    } else {
+      console.log("data-not-available");
+    }
+  }
+
+  function startRecord() {
+    console.log("startRecord ", window.stream);
+
+    var options = { mimeType: "video/webm;codecs=vp9,opus" };
+    window.mediaRecorder = "";
+    try {
+      window.mediaRecorder = new MediaRecorder(window.stream, options);
+    } catch (error) {
+      console.log("startRecord error ", error);
+    }
+
+    window.mediaRecorder.ondataavailable = handleDataAvailable;
+    window.mediaRecorder.start(1500);
+    setRecording(true);
+  }
+
+  function stopRecord() {
+    console.log("stopRecord ", recordedChunks);
+    var blob = new Blob(recordedChunks, {
+      type: "video/webm",
+    });
+
+    blob.name = "video-interview";
+    console.log("blob", blob);
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    a.href = url;
+    a.download = "video-interview.webm";
+    a.click();
+    window.URL.revokeObjectURL(url);
+    window.mediaRecorder && window.mediaRecorder.stop();
+    window.mediaRemoteRecorder && window.mediaRemoteRecorder.stop();
+
+    recordedChunks = [];
+    setRecording(false);
+  }
+
   function addPeer(incomingSignal, callerId, stream) {
     const peer = new Peer({
       initiator: false,
@@ -269,7 +339,12 @@ const Room = (props) => {
               <div className="fas fa-video-slash"></div>
             )}
           </div>
-          <VideoCard key={index} peer={peer} number={arr.length} />
+          <VideoCard
+            key={index}
+            peer={peer}
+            number={arr.length}
+            recordRemote={recordRemote}
+          />
         </div>
       </Col>
     );
@@ -384,6 +459,9 @@ const Room = (props) => {
                 screenShare={screenShare}
                 currentUser={currentUser}
                 changeResolution={changeResolution}
+                startRecord={startRecord}
+                stopRecord={stopRecord}
+                recording={recording}
               />
             </div>
             <div className="video-channel-name">{channelName}</div>
