@@ -224,21 +224,21 @@ const Room = (props) => {
   }
 
   function recordRemote(remoteStream) {
-    // if (window.mediaRecorder) {
-    console.log("stop old ");
-    // window.mediaRecorder.stop();
-    var options = { mimeType: "video/webm;codecs=vp9,opus" };
-    console.log("recordRemote remoteStream", remoteStream);
-    window.mediaRemoteRecorder = "";
-    try {
-      window.mediaRemoteRecorder = new MediaRecorder(remoteStream, options);
-    } catch (error) {
-      console.log("startRecord error ", error);
+    if (window.mediaRecorder) {
+      console.log("stop old ");
+      window.mediaRecorder.stop();
+      var options = { mimeType: "video/webm;codecs=vp9,opus" };
+      console.log("recordRemote remoteStream", remoteStream);
+      window.mediaRemoteRecorder = "";
+      try {
+        window.mediaRemoteRecorder = new MediaRecorder(remoteStream, options);
+      } catch (error) {
+        console.log("startRecord error ", error);
+      }
+      window.mediaRemoteRecorder.ondataavailable = handleDataAvailable;
+      window.mediaRemoteRecorder.start(1500);
+      setRecording(true);
     }
-    window.mediaRemoteRecorder.ondataavailable = handleDataAvailable;
-    window.mediaRemoteRecorder.start(1500);
-    setRecording(true);
-    // }
   }
 
   function handleDataAvailable(event) {
