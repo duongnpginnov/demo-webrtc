@@ -22,6 +22,8 @@ export default function Controls(props) {
     startRecord,
     stopRecord,
     recording,
+    handlePauseResume,
+    recordPause,
   } = props;
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -79,7 +81,7 @@ export default function Controls(props) {
         </Grid>
         {currentUser == "host" ? (
           <>
-            <Grid item>
+            {/* <Grid item>
               <Button variant="contained" color="primary" onClick={turnOffMic}>
                 Mute All
               </Button>
@@ -88,7 +90,7 @@ export default function Controls(props) {
               <Button variant="contained" color="primary" onClick={turnOnMic}>
                 Unmute All
               </Button>
-            </Grid>
+            </Grid> */}
             <Grid item>
               {recording ? (
                 <Button
@@ -108,7 +110,28 @@ export default function Controls(props) {
                 </Button>
               )}
             </Grid>
-            <Grid item>
+            {recording ? (
+              <Grid item>
+                {recordPause ? (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handlePauseResume}
+                  >
+                    resume
+                  </Button>
+                ) : (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handlePauseResume}
+                  >
+                    pause
+                  </Button>
+                )}
+              </Grid>
+            ) : null}
+            {/* <Grid item>
               <Button
                 variant="contained"
                 color="primary"
@@ -116,7 +139,7 @@ export default function Controls(props) {
               >
                 change Resolution
               </Button>
-            </Grid>
+            </Grid> */}
           </>
         ) : null}
         <Grid item>

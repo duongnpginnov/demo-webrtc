@@ -18,6 +18,7 @@ const Room = (props) => {
   const [screenShare, setScreenShare] = useState(false);
   const [showResultAdmin, setShowResultAdmin] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [recordPause, setRecordPause] = useState(false);
   const peersRef = useRef([]);
   const userVideoRef = useRef();
   const screenTrackRef = useRef();
@@ -241,6 +242,32 @@ const Room = (props) => {
     }
   }
 
+  function handlePauseResume() {
+    if (recordPause) {
+      console.log("resume window.mediaRecorder", window.mediaRecorder);
+      console.log(
+        "resume window.mediaRemoteRecorder",
+        window.mediaRemoteRecorder
+      );
+      window.mediaRecorder &&
+        window.mediaRecorder.state !== "inactive" &&
+        window.mediaRecorder.resume();
+      window.mediaRemoteRecorder && window.mediaRemoteRecorder.resume();
+      setRecordPause(false);
+    } else {
+      console.log("pause window.mediaRecorder", window.mediaRecorder);
+      console.log(
+        "pause window.mediaRemoteRecorder",
+        window.mediaRemoteRecorder
+      );
+      window.mediaRecorder &&
+        window.mediaRecorder.state !== "inactive" &&
+        window.mediaRecorder.pause();
+      window.mediaRemoteRecorder && window.mediaRemoteRecorder.pause();
+      setRecordPause(true);
+    }
+  }
+
   function handleDataAvailable(event) {
     console.log("data-available ", event);
     if (event && event.data.size > 0) {
@@ -282,7 +309,9 @@ const Room = (props) => {
     a.download = "video-interview.webm";
     a.click();
     window.URL.revokeObjectURL(url);
-    window.mediaRecorder && window.mediaRecorder.stop();
+    window.mediaRecorder &&
+      window.mediaRecorder.state !== "inactive" &&
+      window.mediaRecorder.stop();
     window.mediaRemoteRecorder && window.mediaRemoteRecorder.stop();
 
     recordedChunks = [];
@@ -462,6 +491,8 @@ const Room = (props) => {
                 startRecord={startRecord}
                 stopRecord={stopRecord}
                 recording={recording}
+                handlePauseResume={handlePauseResume}
+                recordPause={recordPause}
               />
             </div>
             <div className="video-channel-name">{channelName}</div>
