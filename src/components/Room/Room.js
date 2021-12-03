@@ -157,8 +157,14 @@ const Room = (props) => {
       stream,
       config: {
         iceServers: [
-          { urls: "stun:stun.l.google.com:19302" },
-          { urls: "stun:global.stun.twilio.com:3478?transport=udp" },
+          {
+            urls: ["stun:157.245.241.253"],
+          },
+          {
+            username: "guest",
+            credential: "somepassword",
+            urls: ["turn:157.245.241.253"],
+          },
         ],
       },
     });
@@ -325,8 +331,14 @@ const Room = (props) => {
       stream,
       config: {
         iceServers: [
-          { urls: "stun:stun.l.google.com:19302" },
-          { urls: "stun:global.stun.twilio.com:3478?transport=udp" },
+          {
+            urls: ["stun:157.245.241.253"],
+          },
+          {
+            username: "guest",
+            credential: "somepassword",
+            urls: ["turn:157.245.241.253"],
+          },
         ],
       },
     });
