@@ -363,7 +363,7 @@ const Room = (props) => {
 
   function createUserVideo(peer, index, arr) {
     return (
-      <Col span={24} key={index}>
+      <Col span={8} key={index}>
         <div className="video-user">
           {writeUserName(peer.userName)}
           <div>
@@ -510,7 +510,7 @@ const Room = (props) => {
             <div className="video-channel-name">{channelName}</div>
             <div className="video-list">
               <Row>
-                <Col span={24}>
+                <Col span={8}>
                   {/* Current User Video */}
                   <div className="video-user">
                     <video
